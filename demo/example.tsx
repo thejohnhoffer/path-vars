@@ -11,7 +11,7 @@ const Result = () => {
         empty: -1,
         keys: ["n"],
         decode: parseInt,
-        encode: (n) => n.toString(),
+        encode: (n) => `${n}`,
       },
     ],
   });
@@ -24,7 +24,7 @@ const Example = () => {
     <HistoryRouter history={useHashHistory()}>
       <Link to="/42">Go to #42</Link>
       <Routes>
-        <Route path="/:n" element={result} />;
+        <Route path="/:n" element={result} />
         <Route path="/" element={result} />
       </Routes>
     </HistoryRouter>

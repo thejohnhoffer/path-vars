@@ -34,19 +34,20 @@ import { unstable_HistoryRouter as HistoryRouter } from "react-router-dom";
 
 const Example = () => {
   const hash = useVars(useParams(), {
-    empty: { n: -1 },
-    formats: { num: ["n"] },
-    decoders: { num: (s) => parseInt(s) },
-    encoders: { num: (n) => n.toString(10) },
+    formats: [{
+      empty: -1,
+      keys: ["n"]
+      decode: parseInt,
+      encode: x => `${x}`
+    }]
   });
-  const result = <div>{JSON.stringify(hash)}</div>;
-  // result looks like {"n": 42}
+  const result = <div>n is {hash.n}</div>;
   return (
     <HistoryRouter history={useHashHistory()}>
       <Link to="/42">Go to #42</Link>
       <Routes>
-        <Route path=":n" element={result} />;
-        <Route path="*" element={result} />;
+        <Route path="/:n" element={result} />
+        <Route path="/" element={result} />
       </Routes>
     </HistoryRouter>
   );
