@@ -106,19 +106,29 @@ const testUseVars = (key, options) => {
   return TestUseVars;
 };
 
+const nIntFormat = {
+  keys: ["n"],
+  decode: parseInt,
+  encode: (x) => `${x}`,
+};
+const sNoFormat = {
+  keys: ["s"],
+};
+
 [
   testExample("default", { value: -1 }),
   testUseVars("integer n", {
     io: testRoutes([["/:n"]], {
-      formats: [
-        {
-          keys: ["n"],
-          decode: parseInt,
-          encode: (x) => `${x}`,
-        },
-      ],
+      formats: [nIntFormat],
     }),
     expected: { n: 42 },
     input: "/42",
+  }),
+  testUseVars("integer n, string s", {
+    io: testRoutes([["/:n", ":s"]], {
+      formats: [nIntFormat, sNoFormat],
+    }),
+    expected: { n: 42, s: "hello" },
+    input: "/42/hello",
   }),
 ].map((test) => test.run());

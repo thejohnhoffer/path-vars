@@ -17,22 +17,22 @@ type KV<T> = [string, T];
 type Handle<I, O> = (_: I) => O;
 type S2S = Record<string, string>;
 type S2X = Record<string, unknown>;
-type Core<O> = Handle<string, O>;
+type Core<O> = Handle<KV<Format>, O>;
 
 interface Nav {
   (to: { pathname: string }): void;
 }
 
-function useKeys({ formats }: Opts) {
-  const empty: string[] = [];
-  return empty.concat(...formats.map((f) => f.keys));
+function useFormats({ formats }: Opts) {
+  const empty: KV<Format>[] = [];
+  return empty.concat(
+    ...formats.map((f) => {
+      return f.keys.map((k): KV<Format> => [k, f]);
+    })
+  );
 }
 
-function handleKey({ formats }: Opts, k: string) {
-  const format =
-    Object.values(formats).find(({ keys }) => {
-      return keys.includes(k);
-    }) || {};
+function handleFormat(format: Partial<Format>) {
   const { encode, decode } = {
     decode: (s) => s,
     encode: (s) => s,
@@ -49,14 +49,14 @@ function handleKey({ formats }: Opts, k: string) {
   } as Required<Format>;
 }
 
-function core(..._: [Opts, S2X, false]): Core<string>;
-function core(..._: [Opts, S2S, true]): Core<KV<unknown>>;
-function core(..._: [Opts, S2X, boolean]): Core<unknown> {
-  const [opts, obj, read] = _;
+function core(..._: [S2X, false]): Core<string>;
+function core(..._: [S2S, true]): Core<KV<unknown>>;
+function core(..._: [S2X, boolean]): Core<unknown> {
+  const [obj, read] = _;
   const anyIn = (x: unknown): x is unknown => !read;
   const anyOut = (x: unknown): x is unknown => read;
-  return (k: string) => {
-    const f = handleKey(opts, k);
+  return ([k, _f]: KV<Format>) => {
+    const f = handleFormat(_f);
     const checkIn = (x: unknown) => {
       return !anyIn(x) ? f.checkText(x) : f.checkValue(x);
     };
@@ -88,16 +88,16 @@ function core(..._: [Opts, S2X, boolean]): Core<unknown> {
 const useSetVars = (nav: Nav, opts: Opts) => {
   return (state: S2X) => {
     const { root = "/", slash = "/" } = opts;
-    const serialize = core(opts, state, false);
-    const hashKVs = useKeys(opts).map(serialize);
+    const serialize = core(state, false);
+    const hashKVs = useFormats(opts).map(serialize);
     const pathname = root + hashKVs.join(slash);
     nav({ pathname });
   };
 };
 
 const useVars = (params: S2S, opts: Opts) => {
-  const parse = core(opts, params, true);
-  const entries = useKeys(opts).map(parse);
+  const parse = core(params, true);
+  const entries = useFormats(opts).map(parse);
   return Object.fromEntries(entries) as S2X;
 };
 
