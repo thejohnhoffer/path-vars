@@ -6,8 +6,8 @@
     "lint": "eslint src",
     "build": "rm -rf build && tsc -b",
     "format": "prettier --ignore-path .eslintignore --write .",
-    "c8": "npx --yes c8 --exclude demo uvu -r tsm -r esm tests",
-    "test": "uvu -r tsm -r esm tests",
+    "c8": "npx --yes c8 --exclude demo uvu -r tsm tests",
+    "test": "uvu -r tsm tests",
     "demo": "vite serve demo --host"
   },
   "main": "build/index.js",
