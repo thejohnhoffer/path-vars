@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width" />
+</head>
+<html>
+  <body>
+    <div id="index"></div>
+    <script type="module">
+      import Example from "./Example";
+      import { createElement } from "react";
+      import { createRoot } from "react-dom";
+
+      const findIndex = (doc) => doc.getElementById("index");
+      const root = createRoot(findIndex(document));
+
+      root.render(
+        createElement("div", null, [createElement(Example, {}, null)])
+      );
+    </script>
+  </body>
+</html>
